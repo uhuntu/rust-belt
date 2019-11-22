@@ -9,7 +9,7 @@ use piston_window::{Context, UpdateArgs};
 pub mod asteroid;
 pub mod bullet;
 pub mod player;
-mod vector;
+pub mod vector;
 
 const PI_MULT_2: f64 = 2.0 * PI;
 

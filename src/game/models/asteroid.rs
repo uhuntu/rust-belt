@@ -3,7 +3,7 @@ use std::f64;
 use std::f64::consts::PI;
 
 use opengl_graphics::GlGraphics;
-use piston_window::{polygon, Context, Size, Transformed, UpdateArgs};
+use piston_window::{polygon, Context, Size, Transformed, UpdateArgs, types};
 use rand;
 
 use crate::game::color;
@@ -36,6 +36,7 @@ pub struct Asteroid {
     rot: f64,
     spin: f64,
     radius: f64,
+    color: types::Color,
     shape: Vec<[f64; 2]>,
     window_size: Size,
     on_screen: bool,
@@ -164,6 +165,7 @@ impl Asteroid {
             // Spin rate is random within a fixed range.
             spin: (rand::random::<f64>() - 0.5) * f64::consts::PI / 180.0,
             radius: asteroid_radius,
+            color: color::WHITE,
             shape: generate_jagged_shape(asteroid_radius, DEFAULT_NUM_VERTS),
             window_size,
 
@@ -209,6 +211,7 @@ impl Asteroid {
                 rot: 0.0,
                 spin: self.spin * 0.5,
                 radius: new_radius,
+                color: color::YELLOW,
                 shape: new_shape,
                 window_size: self.window_size,
                 on_screen: true,
@@ -285,7 +288,7 @@ impl Drawable for Asteroid {
         // being a list of lists of length 2, is an acceptable "shape" for
         // the polygon function
         polygon(
-            color::WHITE,
+            self.color,
             &self.shape,
             context
                 .transform
@@ -304,7 +307,7 @@ impl Drawable for Asteroid {
         if self.on_screen {
             if self.pos.x + self.radius > self.window_size.width {
                 polygon(
-                    color::WHITE,
+                    self.color,
                     &self.shape,
                     context
                         .transform
@@ -314,7 +317,7 @@ impl Drawable for Asteroid {
                 )
             } else if self.pos.x < self.radius {
                 polygon(
-                    color::WHITE,
+                    self.color,
                     &self.shape,
                     context
                         .transform
@@ -325,7 +328,7 @@ impl Drawable for Asteroid {
             }
             if self.pos.y + self.radius > self.window_size.height {
                 polygon(
-                    color::WHITE,
+                    self.color,
                     &self.shape,
                     context
                         .transform
@@ -335,7 +338,7 @@ impl Drawable for Asteroid {
                 )
             } else if self.pos.y < self.radius {
                 polygon(
-                    color::WHITE,
+                    self.color,
                     &self.shape,
                     context
                         .transform

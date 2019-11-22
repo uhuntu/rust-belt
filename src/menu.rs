@@ -7,11 +7,13 @@ use std::rc::Rc;
 use ai_behavior::{Action, Sequence};
 use music;
 use opengl_graphics::{GlGraphics, GlyphCache, Texture};
-use piston_window::{
-    clear, text, Button, Context, Key, PistonWindow, PressEvent, RenderEvent, Size,
-    TextureSettings, Transformed, UpdateEvent,
-};
+//use piston_window::{
+//    clear, text, Button, Context, Key, PistonWindow, PressEvent, RenderEvent, Size,
+//    TextureSettings, Transformed, UpdateEvent,
+//};
 use sprite::{Ease, EaseFunction, FadeIn, Scene, Sprite};
+
+use piston_window::*;
 
 use crate::game;
 use crate::game::color::{self, ColoredText};
@@ -212,6 +214,65 @@ pub fn run(mut window: &mut PistonWindow, mut opengl: &mut GlGraphics, window_si
 
             if event.update_args().is_some() {
                 logo_scene.event(&event);
+            }
+
+            event.mouse_cursor(|pos| {
+//                println!("Mouse moved '{} {}'", pos[0], pos[1]);
+                if pos[1] > 340.0 && pos[1] < 340.0 + 40.0 {
+                    menu_selection = MenuSelection::Play;
+                }
+                if pos[1] > 340.0 + 40.0 && pos[1] < 340.0 + 40.0 + 40.0 {
+                    menu_selection = MenuSelection::Story;
+                }
+                if pos[1] > 340.0 + 40.0 + 40.0 && pos[1] < 340.0 + 40.0 + 40.0 + 40.0 {
+                    menu_selection = MenuSelection::Settings;
+                }
+                if pos[1] > 340.0 + 40.0 + 40.0 + 40.0 && pos[1] < 340.0 + 40.0 + 40.0 + 40.0 + 40.0 {
+                    menu_selection = MenuSelection::Exit;
+                }
+            });
+
+            if let Some(button) = event.press_args() {
+                if button == Button::Mouse(MouseButton::Left) {
+//                    println!("mouse left press");
+                    music::play_sound(
+                        &Sound::MenuValidate,
+                        music::Repeat::Times(0),
+                        volume.sound,
+                    );
+                    match menu_selection {
+                        MenuSelection::Play => {
+                            music::play_music(&Music::Action, music::Repeat::Forever);
+                            let mut game = game::Game::new(window_size, volume);
+                            game.run(&mut window, &mut opengl, &mut glyph_cache);
+
+                            if game.game_over() {
+                                music::play_music(&Music::GameOver, music::Repeat::Forever);
+                                game.run_game_over(&mut window, &mut opengl, &mut glyph_cache);
+                            }
+                            music::play_music(&Music::Menu, music::Repeat::Forever);
+                        }
+                        MenuSelection::Story => {
+                            story::run(&mut window, &mut opengl, &mut glyph_cache, volume);
+                        }
+                        MenuSelection::Settings => {
+                            settings::run(
+                                &mut window,
+                                &mut opengl,
+                                &mut glyph_cache,
+                                &mut volume,
+                                menu_align,
+                            );
+                        }
+                        MenuSelection::Exit => break,
+                    }
+                }
+            }
+
+            if let Some(button) = event.release_args() {
+                if button == Button::Mouse(MouseButton::Left) {
+//                    println!("mouse left release");
+                }
             }
 
             if let Some(Button::Keyboard(key)) = event.press_args() {

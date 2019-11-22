@@ -8,13 +8,20 @@
 
 use music;
 use opengl_graphics::{GlGraphics, GlyphCache};
-use piston_window::{
-    clear, text, Button, Context, Key, PistonWindow, PressEvent, ReleaseEvent, RenderEvent, Size,
-    Transformed, UpdateArgs, UpdateEvent,
-};
+
+//use piston_window::{
+//    clear, text, Button, Context, Key, PistonWindow, PressEvent, ReleaseEvent, RenderEvent, Size,
+//    Transformed, UpdateArgs, UpdateEvent,
+//};
+
+//use piston_window::mouse::MouseButton;
+
+use piston_window::*;
 
 use self::models::{asteroid, bullet, player, Collidable, Drawable, Updateable};
 use crate::menu::{Sound, Volume};
+
+use crate::game::models::vector::Vector;
 
 pub mod color;
 mod models;
@@ -73,6 +80,46 @@ impl Game {
             if let Some(args) = event.update_args() {
                 self.update(args);
             }
+
+            if let Some(button) = event.press_args() {
+                if button == Button::Mouse(MouseButton::Left) {
+//                    println!("mouse left press");
+                    self.player.actions.is_shooting = true;
+                }
+            }
+
+            if let Some(button) = event.release_args() {
+                if button == Button::Mouse(MouseButton::Left) {
+//                    println!("mouse left release");
+                    self.player.actions.is_shooting = false;
+                }
+            }
+
+            self.player.actions.fire_boosters = true;
+            self.player.actions.is_shooting = true;
+
+            event.mouse_cursor(|pos| {
+                let player_pos = Vector {
+                    x: self.player.pos.x,
+                    y: self.player.pos.y,
+                };
+
+                let mouse_pos = Vector {
+                    x: pos[0],
+                    y: pos[1],
+                };
+
+                let angle = player_pos.angle_to_vector(mouse_pos);
+
+//                println!("angle = {}", angle);
+
+                self.player.rotate_hunt(angle);
+
+//                println!("Player located '{} {}'", self.player.pos.x, self.player.pos.y);
+//                println!("Mouse moved '{} {}'", pos[0], pos[1]);
+            });
+//            event.mouse_scroll(|d| println!("Scrolled mouse '{}, {}'", d[0], d[1]));
+//            event.mouse_relative(|d| println!("Relative mouse moved '{} {}'", d[0], d[1]));
 
             if let Some(Button::Keyboard(key)) = event.press_args() {
                 match key {

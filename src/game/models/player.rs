@@ -57,6 +57,10 @@ impl Player {
         }
     }
 
+    pub fn rotate_hunt(&mut self, rot: f64) {
+        self.rot = rot % PI_MULT_2;
+    }
+
     fn rotate(&mut self, rot: f64) {
         self.rot = (self.rot + rot) % PI_MULT_2;
     }
